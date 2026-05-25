@@ -1,4 +1,4 @@
--- Author：Achuan-2
+-- Author：Achuan-2、YunMengzz
 -- 调用：pandoc input.md -o output.docx --lua-filter=markdown-to-docx.lua
 
 -- =================================================================
@@ -7,9 +7,16 @@
 local script_path = debug.getinfo(1, "S").source:sub(2) -- 获取脚本文件路径
 -- 兼容 Windows (\) 和 Unix (/) 路径，获取所在目录
 local script_dir = script_path:match("(.*[/\\])") or "./"
--- 将脚本所在目录添加到 Lua 的搜索路径中
--- 这样 require('lua/xxx') 就会相对于本脚本所在位置查找
-package.path = script_dir .. "?.lua;" .. script_dir .. "?/init.lua;" .. package.path
+
+-- 优先使用 bat 传入的项目根目录；否则退回到当前脚本目录的上一级
+local project_dir = os.getenv("PANDOC_DOCX_TEMPLATE_ROOT") or (script_dir .. "..")
+
+-- 去掉末尾的 / 或 \，后面统一拼接
+project_dir = project_dir:gsub("[/\\]+$", "")
+
+-- 将项目根目录添加到 Lua 的搜索路径中
+-- 这样 require('lua/xxx') 会找到 项目根目录/lua/xxx.lua
+package.path = project_dir .. "/?.lua;" .. project_dir .. "/?/init.lua;" .. package.path
 
 
 -- 通过一个按顺序维护的模块列表来组织需要加载的 Pandoc 过滤器。
@@ -17,16 +24,16 @@ package.path = script_dir .. "?.lua;" .. script_dir .. "?/init.lua;" .. package.
 local modules = {
     -- markdown 里的html语法识别：上下标、img标签等
 	-- 'lua/markdown-html-recognition',
-	'markdown-html-recognition',
+	'lua/markdown-html-recognition',
 	-- 为文本添加字体颜色支持
-	'preserve_font_color',
+	'lua/preserve_font_color',
     -- pandoc默认把图片alt作为图片标题，改为title作为图片标题
 	-- 'lua/image-title-to-caption',
 	-- 为行内代码添加自定义样式s
-	'add-inline-code',
+	'lua/add-inline-code',
 	-- 在下方继续追加模块名称，例如：
 	-- 'your-extra-filter-module',
-	'upright-numbers',
+	'lua/upright-numbers',
 }
 
 -- 收集最终要返回给 Pandoc 的过滤器（数组形式）。
@@ -69,6 +76,7 @@ end
 for _, m in ipairs(modules) do
 	local ok, ret = pcall(require, m)
 	if ok then
+		io.stderr:write(string.format('[markdown-to-docx] 已加载模块: %s, 返回类型: %s\n', m, type(ret)))
 		append_filter(ret, m)
 	else
 		io.stderr:write(string.format('[markdown-to-docx] 警告: 加载模块 %s 失败: %s\n', m, ret))
