@@ -2,3 +2,5 @@
 README.docx
 *.zip
 .math-svg-build/
+
+pandoc转word问题与方案汇总.docx

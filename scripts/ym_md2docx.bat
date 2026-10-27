@@ -39,7 +39,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-pandoc "%fixedMd%" -f markdown+implicit_figures+pipe_tables+tex_math_dollars -s -t docx ^
+pandoc "%fixedMd%" -f markdown+implicit_figures+pipe_tables+tex_math_dollars-subscript -s -t docx ^
     --resource-path="%inputDir%" ^
     --reference-doc "%scriptDir%..\实验报告转模板.docx" ^
     --lua-filter="%scriptDir%..\lua\markdown-to-docx.lua" ^

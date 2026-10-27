@@ -6,11 +6,31 @@
 
 # 当前命令行参数
 
-```cmd
-pandoc "${currentPath}" -f markdown+implicit_figures+pipe_tables+tex_math_dollars -s -t docx --reference-doc "D:\Projects\pandoc_docx_template\实验报告转模板.docx" -o "${outputPath}" --lua-filter="D:\Projects\pandoc_docx_template\markdown-to-docx.lua" && python "D:\Projects\pandoc_docx_template\fix-three-line-tables.py" "${outputPath}"
+typora中配置自定义运行命令：
+
+```
+"D:\Projects\pandoc_docx_template\scripts\ym_md2docx.bat" "${currentPath}" "${outputPath}"
 ```
 
 
+
+核心转换命令：
+
+```cmd
+pandoc "${currentPath}" -f markdown+implicit_figures+pipe_tables+tex_math_dollars-subscript -s -t docx --reference-doc "D:\Projects\pandoc_docx_template\实验报告转模板.docx" -o "${outputPath}" --lua-filter="D:\Projects\pandoc_docx_template\markdown-to-docx.lua" && python "D:\Projects\pandoc_docx_template\fix-three-line-tables.py" "${outputPath}"
+```
+
+实验报告：
+
+
+
+SVG
+
+选择导出Markdown，然后导出后运行这个命令
+
+```
+cmd /C ""D:\Projects\pandoc_docx_template\run-typora-mathsvg.bat" "${currentPath}" "${outputPath}""
+```
 
 
 
@@ -818,3 +838,9 @@ BAT 复制 SVG
 ```
 
 该方案适合需要将 Markdown 公式稳定转为 SVG 图片，并进一步用于 Word、PPT、WPS 或网页展示的场景。
+
+
+
+# ~x~识别成下标解决办法
+
+转换命令里加一个-subscript就行了
